@@ -14,5 +14,7 @@ CHIP DMux {
     OUT a, b;
 
     PARTS:
-    // Put your code here:
+    Not(in=sel,out=notSel); // Need to check both possible states
+	And(a=in,b=notSel,out=a); // a = 1 if in == 1 and sel == 0
+	And(a=in,b=sel,out=b); // b = 1 if in == 1 and sel == 1
 }
