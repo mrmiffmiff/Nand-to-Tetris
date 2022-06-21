@@ -14,5 +14,8 @@ CHIP Or {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Not(in=a,out=notA);
+	Not(in=b,out=notB);								// Invert both inputs
+	And(a=notA,b=notB,out=andOut);					// And those inverses together; by DeMorgan's Law this is Not(x or y)
+	Not(in=andOut,out=out);							// Double negative to get x or y
 }
