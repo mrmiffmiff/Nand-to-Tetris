@@ -16,5 +16,8 @@ CHIP Mux4Way16 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    Mux16(a=a,b=c,sel=sel[1],out=m1);			// If sel[1] == 0, we should do final comparison with a; else with c
+	Mux16(a=b,b=d,sel=sel[1],out=m2);			// If sel[1] == 0, we should do final comparison with b; else with d
+	Mux16(a=m1,b=m2,sel=sel[0],out=out);		// If sel[0] == 0, we should get m1 (which will be either a or c)
+												// If sel[0] == 1, we should get m2 (which will be either b or d)
 }
