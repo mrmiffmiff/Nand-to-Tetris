@@ -14,4 +14,7 @@ CHIP FullAdder {
 
     PARTS:
     // Put you code here:
+	HalfAdder(a=a,b=b,sum=absum, carry=abcarry); // first two digits
+	HalfAdder(a=absum,b=c,sum=sum, carry=ccarry); // final digit
+	Or(a=abcarry,b=ccarry,out=carry); // in any situation where we need a carry, either one of the internal half-adders will have carry set
 }
