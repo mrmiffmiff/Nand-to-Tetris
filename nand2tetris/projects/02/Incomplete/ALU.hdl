@@ -43,4 +43,38 @@ CHIP ALU {
 
     PARTS:
    // Put you code here:
+	Mux16(a=x,b=false,sel=zx,out=x1); // This will zero out x if needed
+	Mux16(a=y,b=false,sel=zy,out=y1); // This will zero out y if needed
+	Not16(in=x1,out=x2); // This will get the bitwise negation of x (after possible zeroing)
+	Not16(in=y1,out=y2); // This will get the bitwise negation of y (after possible zeroing)
+	Mux16(a=x1,b=x2,sel=nx,out=x3); // This will give us the negation or the initial post-zeroing x; either way processing on x is done from x3
+	Mux16(a=y1,b=y2,sel=ny,out=y3); // This will give us the negation or the initial post-zeroing y; either way processing on y is done from y3
+
+	And16(a=x3,b=y3,out=xandy); // This will get us the bitwise and of x and y
+	Add16(a=x3,b=y3,out=xpy); // This will get us the sum of x and y
+	Mux16(a=xandy,b=xpy,sel=f,out=fo); // Selection bit is the f input, selects either sum or and as appropriate
+	
+	Not16(in=fo,out=nfo); // Negate the function output
+	Mux16(a=fo,b=nfo,sel=no,out[15]=ng,out[15]=sig,out=last,out=out); // Output out bus based on whether it needs to be negated or not
+	// Apparently we can't do some operations on the output bus, should've known
+	// Let's put this output into an internal pin also (last pin above), unfortunately that means we can't subindex
+	// Thanks to funky HDL tricks we can directly set the ng bit above, as I did
+
+	// How do we test it's zero?
+	// So say the new last bus/output is 0 (00000 etc.).
+	// Negation, thus, would make 11111 etc.
+	// If we increment that, it will now be 00000 again (no longer negative)
+	// If output was > 0 (00001) negation is 11110, incrementation is 11111
+	// If output < 0 (11110) negation is 00001, incrementation is 00010
+	// In other words, zero is the only case where the most significant bit of last will be 0 both before and after these two operations
+
+	Not16(in=last,out=notlast); //As mentioned above, negate
+	Inc16(in=notlast,out[15]=sigInc); // And increment, get the most significant bit
+
+	// Now, with sig and sigInc, if both are 0, then zr = 1, otherwise zr = 0
+	// Unfortunately we have nothing that checks that directly, so we'll need to not them both first
+	Not(in=sig,out=notSig);
+	Not(in=sigInc,out=notSigInc);
+
+	And(a=notSig,b=notSigInc,out=zr); // And finally...
 }
